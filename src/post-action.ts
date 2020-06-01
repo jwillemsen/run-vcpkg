@@ -6,7 +6,6 @@
 import * as core from '@actions/core'
 import * as action from './vcpkg-action'
 import * as cache from '@actions/cache'
-import * as path from 'path'
 
 function isExactKeyMatch(key: string, cacheKey?: string): boolean {
   return !!(

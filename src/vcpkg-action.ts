@@ -3,12 +3,10 @@
 // SPDX short identifier: MIT
 
 import * as core from '@actions/core'
-import * as vcpkgrunner from './vcpkg-runner';
-import { BaseLib } from './base-lib';
-import * as globals from '../libs/run-vcpkg-lib/src/vcpkg-globals'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as cache from '@actions/cache'
+import { BaseLib, vcpkgDirectory, VcpkgRunner, vcpkgCommitId, vcpkgArguments } from '@lukka/run-cmake-vcpkg-action-libs'
 
 export const VCPKGCACHEKEY = 'cacheKey';
 export const VCPKGCACHEHIT = 'cacheHit';
@@ -19,7 +17,7 @@ export const VCPKGCACHEHIT = 'cacheHit';
 export const appendedCacheKey = 'appendedCacheKey';
 
 export function getCachedPaths(): string[] {
-  const vcpkgDir = core.getInput(globals.vcpkgDirectory);
+  const vcpkgDir = core.getInput(vcpkgDirectory);
   const pathsToCache: string[] = [
     path.normalize(vcpkgDir),
     path.normalize(`!${path.join(vcpkgDir, 'packages')}`),
@@ -80,7 +78,7 @@ export class VcpkgAction {
       core.endGroup()
     }
 
-    const runner: vcpkgrunner.VcpkgRunner = new vcpkgrunner.VcpkgRunner(this.tl);
+    const runner: VcpkgRunner = new VcpkgRunner(this.tl);
     await runner.run();
   }
 
@@ -89,7 +87,7 @@ export class VcpkgAction {
     const workspaceDir = process.env.GITHUB_WORKSPACE ?? "";
     if (workspaceDir) {
       let fullVcpkgPath = "";
-      const inputVcpkgPath = core.getInput(globals.vcpkgDirectory);
+      const inputVcpkgPath = core.getInput(vcpkgDirectory);
       if (path.isAbsolute(inputVcpkgPath))
         fullVcpkgPath = path.normalize(path.resolve(inputVcpkgPath));
       else
@@ -113,13 +111,13 @@ export class VcpkgAction {
     if (commitId) {
       core.info(`vcpkg identified at commitId=${commitId}, adding it to the cache's key.`);
       key += `submodGitId=${commitId}`;
-    } else if (core.getInput(globals.vcpkgCommitId)) {
-      key += "localGitId=" + hashCode(core.getInput(globals.vcpkgCommitId));
+    } else if (core.getInput(vcpkgCommitId)) {
+      key += "localGitId=" + hashCode(core.getInput(vcpkgCommitId));
     } else {
       core.info(`No vcpkg's commit id was provided, does not contribute to the cache's key.`);
     }
 
-    key += "-args=" + hashCode(core.getInput(globals.vcpkgArguments));
+    key += "-args=" + hashCode(core.getInput(vcpkgArguments));
     key += "-os=" + hashCode(process.platform);
     key += "-appendedKey=" + hashCode(core.getInput(appendedCacheKey));
     return key;

@@ -42,7 +42,7 @@ jobs:
     - name: basic test for run-vcpkg
       uses: ./
       with:
-        vcppkgDirectory: ${{ github.workspace }}/vcpkg
+        vcpkgDirectory: ${{ github.workspace }}/vcpkg
         vcpkgArguments: sqlite3
         vcpkgGitUrl: 'https://github.com/lukka/vcpkg.git'
         vcpkgGitCommitId: 'c5f01e1dee0d41b8014ac6f1eeafda974917ba17'
